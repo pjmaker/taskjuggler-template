@@ -1,0 +1,5 @@
+hello world
+this should be fine
+*foreach a {1 2 3} {
+ $a
+*}
