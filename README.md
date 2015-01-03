@@ -25,48 +25,48 @@ sense for projects with lots of repeating varying tasks (otherwise
 TaskJuggler macros etc will do the job).
 
 As a small example consider this fragment:
->
->*set sites {
->  *  {name A connect hv size 500}
->  *  {name B connect lv size 1200}
->  *  {name C connect hv size 100}
->*}
->
->resource hvt "HVT" { } 
->resource lvt "LVT" { }
->
->task land "Land Procurement" {
->  chargeset land
->  *foreach site $sites {
->    *foreach {v k} $site {set $v $k} 
->    $task land_$name "Land $name" { 
->      !duration [between 6 12]m ;# 6..12 months
->      allocate batman {alternative robin}
->      !charge [expr 200*$size] onstart
->    }
->  *}
->}
->
->task mp_rollout "MP Rollout" {
->  chargeset mprollout
->  *foreach site $sites {
->    *foreach {v k} $site {set $v $k}
->    $ task site_$name "$name $connect $size" {
->      depends land_$name
->
->      *if {$connect eq "hv"} {
->	task HV {
->	  effort 3d
->	  allocate hvt
->	}
->      *} elseif {$connect eq "lv"} {
->	task LV {
->	  effort 10d
->	  allocate lvt
->	}
->      *} else {
->	error "connect must be hv|lv for $name" }
->      *}
->    }
->  *}
->}
+> 
+> *set sites {
+>   *  {name A connect hv size 500}
+>   *  {name B connect lv size 1200}
+>   *  {name C connect hv size 100}
+> *}
+> 
+> resource hvt "HVT" { } 
+> resource lvt "LVT" { }
+> 
+> task land "Land Procurement" {
+>   chargeset land
+>   *foreach site $sites {
+>     *foreach {v k} $site {set $v $k} 
+>     $task land_$name "Land $name" { 
+>       !duration [between 6 12]m ;# 6..12 months
+>       allocate batman {alternative robin}
+>       !charge [expr 200*$size] onstart
+>     }
+>   *}
+> }
+> 
+> task mp_rollout "MP Rollout" {
+>   chargeset mprollout
+>   *foreach site $sites {
+>     *foreach {v k} $site {set $v $k}
+>     $ task site_$name "$name $connect $size" {
+>       depends land_$name
+> 
+>       *if {$connect eq "hv"} {
+> 	task HV {
+> 	  effort 3d
+> 	  allocate hvt
+> 	}
+>       *} elseif {$connect eq "lv"} {
+> 	task LV {
+> 	  effort 10d
+> 	  allocate lvt
+> 	}
+>       *} else {
+> 	error "connect must be hv|lv for $name" }
+>       *}
+>     }
+>   *}
+> }
