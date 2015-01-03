@@ -59,7 +59,7 @@ proc process {s} {
     puts "$prog failed $r $::errorInfo"
     return ""
   } else {
-    puts "$prog ->"
+#    puts "$prog ->"
     return $out
   }
 }

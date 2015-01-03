@@ -10,38 +10,48 @@
 #
 
 *set sites {
-  *  {name oenpelli interconnect hv pvsize 500}
-  *  {name maningrida interconnect lv pvsize 1200}
-  *  {name darwin interconnect hv pvsize 100}
+  *  {name A connect hv size 500}
+  *  {name B connect lv size 1200}
+  *  {name C connect hv size 100}
 *}
 
+resource hvt "HVT" { } 
+resource lvt "LVT" { }
+
 task land "Land Procurement" {
+  chargeset land
   *foreach site $sites {
     *foreach {v k} $site {set $v $k} 
     $task land_$name "Land $name" { 
-    !  duration [between 6 12]m
-    $  allocate batman {alternative robin}
+      !duration [between 6 12]m ;# 6..12 months
+      allocate batman {alternative robin}
+      !charge [expr 200*$size] onstart
     }
   *}
 }
 
 task mp_rollout "MP Rollout" {
-  chargeset "MP rollout"
+  chargeset mprollout
   *foreach site $sites {
     *foreach {v k} $site {set $v $k}
-    $ task site_$name "$name $interconnect $pvsize" {
-      *if {$interconnect eq "hv"} {
+    $ task site_$name "$name $connect $size" {
+      depends land_$name
+
+      *if {$connect eq "hv"} {
 	task HV {
 	  effort 3d
 	  allocate hvt
 	}
-      *} elseif {$interconnect eq "lv"} {
+      *} elseif {$connect eq "lv"} {
 	task LV {
 	  effort 10d
 	  allocate lvt
 	}
-	*} else { error "interconnect must be hv|lv for $name" }
+      *} else {
+	error "connect must be hv|lv for $name" }
+      *}
     }
   *}
 }
+
 
