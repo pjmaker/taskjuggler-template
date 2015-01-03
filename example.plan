@@ -1,5 +1,47 @@
-hello world
-this should be fine
-*foreach a {1 2 3} {
- $a
+# -*-tcl-*-
+#
+# example.plan - a very simple example
+#
+
+# 
+# This file when translated by make-plan.tcl will
+# be a taskjuggler file for a number of sites each
+# of which have different attributes and timings.
+#
+
+*set sites {
+  *  {name oenpelli interconnect hv pvsize 500}
+  *  {name maningrida interconnect lv pvsize 1200}
+  *  {name darwin interconnect hv pvsize 100}
 *}
+
+task land "Land Procurement" {
+  *foreach site $sites {
+    *foreach {v k} $site {set $v $k} 
+    $task land_$name "Land $name" { 
+    !  duration [between 6 12]m
+    $  allocate batman {alternative robin}
+    }
+  *}
+}
+
+task mp_rollout "MP Rollout" {
+  chargeset "MP rollout"
+  *foreach site $sites {
+    *foreach {v k} $site {set $v $k}
+    $ task site_$name "$name $interconnect $pvsize" {
+      *if {$interconnect eq "hv"} {
+	task HV {
+	  effort 3d
+	  allocate hvt
+	}
+      *} elseif {$interconnect eq "lv"} {
+	task LV {
+	  effort 10d
+	  allocate lvt
+	}
+	*} else { error "interconnect must be hv|lv for $name" }
+    }
+  *}
+}
+

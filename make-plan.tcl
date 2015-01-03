@@ -1,27 +1,9 @@
 # -*-tcl-*- \
 	exec tclsh "$0" "$@"
 #
-# make-plan.tcl - a very simple TCL based template
-#   program based on substify from wiki.tcl.tk. 
+# make-plan.tcl - a very simple TCL based template suitable
+#   for making TaskJuggler plans
 #
-# The basic idea is break the input into lines where:
-#
-# *... is TCL code and is just added to the program
-# ...  is anything else that is some TCL code to append this line
-# 
-# Then finally we eval the generated program.
-#
-# For example:
-#
-# *foreach a {1 2 3} {
-#   hello ${a}
-# *}
-#
-# generates
-#
-#  hello 1
-#  hello 2
-#  hello 3
 #
 # Copyright (c) 2015, Phil Maker
 # All rights reserved.
@@ -55,37 +37,69 @@ array set options {
 }
 array set options $argv
 
-proc substify {in var} {
-  set script ""
-  set pos 0
-  foreach pair [regexp -line -all -inline -indices {^[*].*$} $in] {
-    foreach {from to} $pair break
-    set s [string range $in $pos [expr {$from - 2}]]
-    if {[string length $s] > 0} {
-      append script "append $var \[" [list subst $s] "]\n" 
-      append script "append $var \\n\n"
+
+proc process {s} {
+  set prog {}
+  set out {}
+  foreach line [split $s \n] {
+    if {[regexp {^[ \t]*[*](.*)} $line -> rest]} {
+      append prog $rest \n
+    } elseif {[regexp {^[ \t]*[$](.*)} $line -> rest]} {
+      append prog \
+	  "append out \[subst -nocommands -nobackslashes [list $rest]\] \\n" \n
+
+    } elseif {[regexp {^[ \t]*[!](.*)} $line -> rest]} {
+      append prog \
+	  "append out \[subst -nobackslashes [list $rest]\] \\n" \n
+    } else {
+      append prog "append out [list $line] \\n" \n
     }
-    append script "[string range $in [expr {$from+1}] $to]\n" 
-    set pos [expr {$to+2}]
   }
-  set s [string range $in $pos end]
-  if {[string length $s] > 0} {
-    append script "append $var \[" [list subst "$s\n" ] "]\n"
+  if {[catch $prog r]} {
+    puts "$prog failed $r $::errorInfo"
+    return ""
+  } else {
+    puts "$prog ->"
+    return $out
   }
-  return $script
 }
 
+proc indent {s} {
+  set level 0
+
+  foreach line [split $s \n] {
+    regexp {^[ \t]*(.*$)} $line -> rest
+    set indentby 0
+    for {set i 0} {$i < [string length $rest]} {incr i} {
+      set c [string index $rest $i]
+      if {$c == "\{"} {
+	incr indentby
+      } elseif {$c == "\}"} {
+	incr indentby -1
+      } else {
+	 # ignore it
+      }
+    }
+    set tab "  "
+    if {$indentby > 0} {
+      puts "[string repeat $tab $level]$rest"
+      incr level $indentby
+    } elseif {$indentby < 0} {
+      incr level $indentby
+      puts "[string repeat $tab $level]$rest"
+    } else {
+      puts "[string repeat $tab $level]$rest"
+    }
+  }
+}
+
+# some semi useful library procedures
+proc between {min max} { # between 7 10 return 7 or 8 or 9 or 10
+  return [expr int($min + rand() * ($max - $min))]
+}
+
 proc main {} {
-  set output ""
-  set prog [substify [read stdin] output]
-  if {$::options(-show_prog)} {
-    puts $prog
-  }
-  if {[catch [list eval $prog] r]} {
-    puts "failed with $r $::errorInfo"
-  } else {
-    puts $output
-  }
+  indent [process [read stdin]]
 }
 
 main
