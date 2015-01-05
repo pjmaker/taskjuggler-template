@@ -27,7 +27,7 @@ macro TaskTip [
 
 textreport frame "" {
   header -8<-
-    == SETuP Plan ==
+    == SolarDawn Plan ==
     <[navigator id="navbar"]>
   ->8-
   footer "----"
@@ -80,7 +80,7 @@ textreport frame "" {
 
 taskreport outline "" {
   header -8<-
-  === SETuP Outline ===
+  === SolarDawn Outline ===
   ->8-
   columns bsi { title "WBP" },
           name, 
@@ -101,7 +101,7 @@ taskreport outline "" {
 
 taskreport tasks "tasks" {
   header -8<-
-    === SETuP Tasks ===
+    === SolarDawn Tasks ===
   ->8-
   columns bsi { title 'WBS' },
           name, 
@@ -123,7 +123,7 @@ taskreport tasks "tasks" {
 
 taskreport milestones "milestones" {
   header -8<-
-    === SETuP Milestones ===
+    === SolarDawn Milestones ===
   ->8-
   columns bsi { title 'WBS' },
           name, 
@@ -144,7 +144,7 @@ taskreport milestones "milestones" {
 
 taskreport tasksandworkers "" {
   header -8<-
-    === SETuP Details and Workers ===
+    === SolarDawn Details and Workers ===
   ->8-
   columns bsi { title 'WBS' },
           name, 
@@ -305,7 +305,7 @@ textreport "Miscellaneous CSV Reports" {
 
 # Microsoft Project Export
 
-export "SETuP-plan" {
+export "SolarDawn-plan" {
   formats mspxml
   loadunit days
 }
