@@ -1,0 +1,317 @@
+# 
+# report.tji - the reports 
+#
+
+navigator navbar {
+  hidereport @none
+}
+
+macro TaskTip [
+  tooltip istask() -8<-
+    '''Start: ''' <-query attribute='start'->
+    '''End: ''' <-query attribute='end'->
+    ----
+    '''Resources:'''
+
+    <-query attribute='resources'->
+    ----
+    '''Precursors: '''
+
+    <-query attribute='precursors'->
+    ----
+    '''Followers: '''
+
+    <-query attribute='followers'->
+    ->8-
+]
+
+textreport frame "" {
+  header -8<-
+    == SETuP Plan ==
+    <[navigator id="navbar"]>
+  ->8-
+  footer "----"
+  textreport index "Outline" {
+    formats html
+    center '<[report id="outline"]>'
+  }
+
+  textreport milestones "Milestones" {
+    formats html
+    center '<[report id="milestones"]>'
+  }
+
+  textreport tasks "Tasks" {
+    formats html
+    center '<[report id="tasks"]>'
+  }
+
+  textreport tasksandworkers "TasksAndWorkers" {
+    formats html
+    title "Tasks and Workers"
+    center '<[report id="tasksandworkers"]>'
+  }
+
+  textreport "WhoDoesWhat" {
+    formats html
+    title "Who does what?"
+    center '<[report id="whodoeswhat"]>'
+  }
+
+  textreport "WhoList" {
+    formats html
+    title "Who is ?"
+    center '<[report id="WhoList"]>'
+  }
+
+  textreport "WhoDoesHow" {
+    formats html
+    title "Who does how much?"
+    center '<[report id="whodoeshowmuch"]>'
+  }
+
+  textreport "WhoDoesHowMuchPerPhase" {
+    formats html
+    title "Who does how much per phase?"
+    center '<[report id="whodoeshowmuchperphase"]>'
+  }
+
+}
+
+taskreport outline "" {
+  header -8<-
+  === SETuP Outline ===
+  ->8-
+  columns bsi { title "WBP" },
+          name, 
+          cost,
+          duration,
+          chart { ${TaskTip} width 2000 scale month }
+  timeformat "%Y-%m-%d"
+  loadunit days
+  hideresource @all
+  hidetask treelevel() > 1
+  # balance cost revenue
+  caption 'All effort values are in man days, all tasks include travel time'
+  sorttasks tree
+  footer -8<-
+  $footer
+  ->8-
+}
+
+taskreport tasks "tasks" {
+  header -8<-
+    === SETuP Tasks ===
+  ->8-
+  columns bsi { title 'WBS' },
+          name, 
+          start, 
+          end, 
+          cost,
+          duration,
+          chart { ${TaskTip} width 2000 scale month }
+  timeformat "%Y-%m-%d"
+  loadunit days
+  hideresource @all
+  # balance cost revenue
+  caption 'All effort values are in man days, all tasks include travel time'
+  sorttasks tree
+  footer -8<-
+  $footer
+  ->8-
+}
+
+taskreport milestones "milestones" {
+  header -8<-
+    === SETuP Milestones ===
+  ->8-
+  columns bsi { title 'WBS' },
+          name, 
+          start, 
+          end,
+          duration,
+          chart { ${TaskTip} width 2000 scale month }
+  timeformat "%Y-%m-%d"
+  loadunit days
+  hidetask ~ismilestone(plan)
+  # balance cost revenue
+  caption 'All effort values are in man days, all tasks include travel time'
+  sorttasks tree
+  footer -8<-
+  $footer
+  ->8-
+}
+
+taskreport tasksandworkers "" {
+  header -8<-
+    === SETuP Details and Workers ===
+  ->8-
+  columns bsi { title 'WBS' },
+          name, 
+          start, 
+          end, 
+          duration,
+          cost,
+          chart { ${TaskTip} width 2000 scale month }
+  timeformat "%Y-%m-%d"
+  loadunit days
+  caption 'All effort values are in man days.'
+  sorttasks tree
+  hideresource @none
+  footer -8<-
+  $footer
+  ->8-
+}
+
+# A list of tasks showing the resources assigned to each task.
+taskreport detailandworkers "" {
+#  scenarios delayed
+  headline "Detail and Workers"
+  columns bsi { title 'WBS' }, name, start, end, effort { title "Work" },
+          duration, chart { ${TaskTip} scale month width 3000 }
+  timeformat "%Y-%m-%d"
+  loadunit days
+  hideresource ~(isleaf() & isleaf_())
+  sortresources name.up
+  sorttasks plan.start.up
+  footer -8<-
+  $footer
+  ->8-
+}
+
+# A list of all employees with their contact details.
+resourcereport WhoList "" {
+  headline "Who is?"
+  columns name,
+          email { celltext 1 "[mailto:<-email-> <-email->]" },
+          Phone,
+          Roles
+  hideresource ~isleaf()
+  sortresources name.up
+  hidetask @all
+  footer -8<-
+  $footer
+  ->8-
+}
+
+resourcereport whodoeswhat "" {
+  headline "Who does what?"
+  columns no, name, bsi {title "WBP"}, effort, rate,weekly { ${TaskTip} width 3000 }
+  loadunit days
+  # We only like to show leaf tasks for leaf resources.
+  hidetask ~(isleaf() & isleaf_())
+#  hidetask treelevel() > 0
+  sorttasks plan.start.up
+  footer -8<-
+  $footer
+  ->8-
+}
+
+resourcereport whodoeshowmuch "" {
+  headline "Who does how much?"
+  columns no, name, bsi {title "WBP"}, effort, rate,weekly { ${TaskTip} width 3000}
+  loadunit days
+  # We only like to show leaf tasks for leaf resources.
+  # hidetask ~(isleaf() & isleaf_())
+  hidetask treelevel() > 0
+  sorttasks plan.start.up
+  footer -8<-
+  $footer
+  ->8-
+}
+
+resourcereport whodoeshowmuchperphase "" {
+  headline "Who does how much per phase?"
+  columns no, name, bsi {title "WBP"}, effort, rate,weekly { ${TaskTip} width 3000 }
+  loadunit days
+  # We only like to show leaf tasks for leaf resources.
+  # hidetask ~(isleaf() & isleaf_())
+  hidetask treelevel() > 1
+  sorttasks plan.start.up
+  footer -8<-
+  $footer
+  ->8-
+}
+
+# status report
+textreport "Status" {
+  formats html
+  center -8<-
+  <[report id="status.dashboard"]>
+  ----
+  <[report id="status.completed"]>
+  ----
+  <[report id="status.ongoing"]>
+  ----
+  <[report id="status.future"]>
+  ->8-
+}
+
+macro AlertColor [
+  cellcolor plan.alert = 0 "#00D000" # green
+  cellcolor plan.alert = 1 "#D0D000" # yellow
+  cellcolor plan.alert = 2 "#D00000" # red
+]
+
+taskreport status "" {
+  columns bsi { width 50 title 'WBS' }, name { width 150 },
+          start { width 100 }, end { width 100 },
+          effort { width 100 },
+          alert { tooltip plan.journal
+                          != '' "<-query attribute='journal'->" width 150 },
+          status { width 150 }
+
+  taskreport dashboard "" {
+    headline "Project Dashboard (<-query attribute='now'->)"
+    columns name { title "Task" ${AlertColor} width 200},
+            resources { width 200 ${AlertColor}
+                        listtype bullets
+                        listitem "<-query attribute='name'->"
+                        start ${projectstart} end ${projectend} },
+            alerttrend { title "Trend" ${AlertColor} width 50 },
+            journal { width 350 ${AlertColor} }
+    journalmode status_up
+    journalattributes headline, author, date, summary, details
+    hidetask ~hasalert(0)
+    sorttasks alert.down, plan.end.up
+    period %{${now} - 1w} +1w
+  }
+  taskreport completed "" {
+    headline "Already completed tasks"
+    hidetask ~(plan.end <= ${now})
+  }
+  taskreport ongoing "" {
+    headline "Ongoing tasks"
+    hidetask ~((plan.start <= ${now}) & (plan.end > ${now}))
+  }
+  taskreport future "" {
+    headline "Future tasks"
+    hidetask ~(plan.start > ${now})
+  }
+}
+
+# CSV reports
+
+textreport "Miscellaneous CSV Reports" {
+  formats csv
+  scenarios plan
+  timeformat "%m/%d/%Y"
+
+  taskreport "CsvPlan" {
+    columns name, bsi, id, resources, start, end, duration, cost, note
+  }
+  purge formats
+}
+
+# Microsoft Project Export
+
+export "SETuP-plan" {
+  formats mspxml
+  loadunit days
+}
+
+
+
+
+
+

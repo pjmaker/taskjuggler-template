@@ -1,0 +1,32 @@
+#
+# people - organised into teams with roles
+#
+# this is in plain old task juggler format, no generation of code
+#
+# BTW people are not resources, I am not a number!
+#
+
+resource landteam "Land Procurement Team" {
+  resource batman "Batman" {
+    rate 500
+  }
+  resource robin "Robin" {
+    rate 300
+  }
+}
+
+resource hvt "HV Line Team" {
+  limits {
+    monthlymax 1w
+  }
+  rate 5500 
+}
+
+resource lvt "LV Line Team" {
+  limits {
+    monthlymax 2w
+  }
+  rate 3500 
+}
+
+

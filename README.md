@@ -20,9 +20,9 @@ look roughly alike but have special properties, e.g.
    which require different teams and have different plans.
 
 So the main itch that is being scratched is how to automagically
-generate a taskjuggler via a templating system which only makes
-sense for projects with lots of repeating varying tasks (otherwise
-TaskJuggler macros etc will do the job).
+generate a taskjuggler project via a templating system which only makes
+sense for projects with lots of repeating/varying tasks (otherwise
+TaskJuggler macros etc will do the job)..
 
 As a small example consider this fragment:
 ```` 
@@ -71,3 +71,11 @@ task mp_rollout "MP Rollout" {
   *}
 }
 ````
+
+Have a look in the HTML/ directory in order to see the generated reports.
+This particular tool has been written by pjmaker in his spare time
+and been used to generate a plan for large PV rollout across the 
+Northern Territory of Australia.All the commercial information 
+has been removed but if you have some assistance on the reports etc
+I would take it as a kindness.
+

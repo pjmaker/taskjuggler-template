@@ -1,0 +1,13 @@
+#
+# resources - real physical things not people
+#
+
+resource loadbanks "Load banks" {
+} 
+
+resource vehicles  "Vehicles" {
+}
+
+resource commissioning_kits "Commissioning Kits" {
+}
+	

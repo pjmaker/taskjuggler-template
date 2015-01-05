@@ -1,0 +1,14 @@
+#
+# accounts
+#
+
+account costs "Costs" {
+	account lvteam "LV team"
+	account hvteam "HV team"
+	account landteam "Land team"
+	account rollout "Rollout costs"
+}
+account revenue "Project revenue"
+
+balance costs revenue
+

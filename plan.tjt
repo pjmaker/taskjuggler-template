@@ -1,0 +1,84 @@
+# -*=taskjuggler-*-
+#
+# plan.tjt - this file is processed into the real task juggler file
+#   according to the following rules:
+#
+# 0. Whitespace at the beginning of a line is ignored.
+# 1. Any line starting with * is a bit of TCL
+# 2. Any line starting with $ will be subst for TCL variables
+# 3. Any line starting with ! will be subst for TCL variables/commands
+# 4. Anything else goes straight thru
+#
+
+
+project example "example" 2015-01-01 +3y {
+	timeformat "%Y-%m-%d"
+	numberformat "-" "" "," "." 1
+	currencyformat "(" ")" "," "." 0
+	now 2015-01-01
+	currency "AUD"
+	extend resource {
+		text Phone "Phone"
+		text Roles "Roles"
+	}
+}
+
+include "people.tji"
+include "resources.tji"
+include "accounts.tji"
+
+# 
+# This file when translated by make-plan.tcl will
+# be a taskjuggler file for a number of sites each
+# of which have different attributes and timings.
+#
+# typically this is say 50 sites.each with perhaps
+# 10 attributes
+
+*set sites {
+  *  {name A connect hv size 500}
+  *  {name B connect lv size 1200}
+  *  {name C connect hv size 100}
+*}
+
+task land "Land Procurement" {
+  chargeset landteam
+  *foreach site $sites {
+    *foreach {v k} $site {set $v $k} 
+    $task land_$name "Land $name" { 
+      priority 1000
+      !duration [between 6 12]m
+      allocate batman {alternative robin}
+      !charge [expr 200*$size] onstart
+    }
+  *}
+}
+
+task rollout "Rollout" {
+  chargeset rollout
+  *foreach site $sites {
+    *foreach {v k} $site {set $v $k}
+    $ task site_$name "$name $connect $size" {
+    $ depends land.land_$name
+      
+      * if {$connect eq "hv"} {
+	task HV "HV interconnect" {
+	  effort 3d
+	  allocate hvt
+	}
+      * } elseif {$connect eq "lv"} {
+	  task LV "LV interconnect" {
+	  effort 10d
+	  allocate lvt
+	}
+      * } else {
+	error "connect must be hv|lv for $name" }
+      * }
+    }
+  * }
+}
+
+
+include "reports.tji"
+
+
